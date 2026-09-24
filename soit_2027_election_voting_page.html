@@ -307,7 +307,7 @@
         const callbackName = `esasVoteJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const query = new URLSearchParams({ ...payload, callback: callbackName });
         const script = document.createElement('script');
-        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The voting service timed out.')); }, 15000);
+        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The voting service timed out. Your vote may already have been recorded. Please check your submission status before trying again.')); }, 120000);
         const cleanup = () => { clearTimeout(timeoutId); delete window[callbackName]; script.remove(); };
         window[callbackName] = data => { cleanup(); resolve(data); };
         script.onerror = () => { cleanup(); reject(new Error('The voting service could not be reached.')); };
@@ -319,8 +319,38 @@
     function showAlert(message, type) {
       const box = document.getElementById('voter-alert');
       box.classList.remove('hidden', 'bg-rose-500/10', 'border-rose-500/30', 'text-rose-300', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300');
-      box.classList.add(type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300');
-      box.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i><span>${message}</span></div><button onclick="this.parentElement.classList.add('hidden')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>`;
+      const alertClasses = type === 'error'
+        ? ['bg-rose-500/10', 'border-rose-500/30', 'text-rose-300']
+        : ['bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300'];
+      box.classList.add(...alertClasses);
+      
+      // Create DOM elements safely to avoid innerHTML issues
+      box.innerHTML = '';
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'flex items-center gap-2';
+      
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'alert-circle');
+      icon.className = 'w-5 h-5';
+      
+      const messageSpan = document.createElement('span');
+      messageSpan.textContent = message;
+      
+      contentDiv.appendChild(icon);
+      contentDiv.appendChild(messageSpan);
+      
+      const closeButton = document.createElement('button');
+      closeButton.className = 'text-slate-400 hover:text-white';
+      closeButton.onclick = function() { box.classList.add('hidden'); };
+      
+      const closeIcon = document.createElement('i');
+      closeIcon.setAttribute('data-lucide', 'x');
+      closeIcon.className = 'w-4 h-4';
+      
+      closeButton.appendChild(closeIcon);
+      box.appendChild(contentDiv);
+      box.appendChild(closeButton);
+      
       lucide.createIcons();
     }
 

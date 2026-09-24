@@ -141,7 +141,20 @@
       const box = document.getElementById('login-alert');
       box.classList.remove('hidden', 'bg-rose-500/10', 'border-rose-500/30', 'text-rose-300', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300');
       box.classList.add(type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300');
-      box.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> <span>${message}</span>`;
+      
+      // Create DOM elements safely
+      box.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'alert-circle');
+      icon.className = 'w-4 h-4';
+      
+      const messageSpan = document.createElement('span');
+      messageSpan.textContent = message;
+      
+      box.appendChild(icon);
+      box.appendChild(document.createTextNode(' '));
+      box.appendChild(messageSpan);
+      
       lucide.createIcons();
     }
 
@@ -177,7 +190,7 @@
         const callbackName = `esasJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const query = new URLSearchParams({ ...params, callback: callbackName });
         const script = document.createElement('script');
-        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The Apps Script request timed out.')); }, 15000);
+        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The Apps Script request timed out.')); }, 120000);
         const cleanup = () => { clearTimeout(timeoutId); delete window[callbackName]; script.remove(); }
         window[callbackName] = data => { cleanup(); resolve(data); };
         script.onerror = () => { cleanup(); reject(new Error('The Apps Script endpoint could not be reached.')); };
