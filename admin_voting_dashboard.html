@@ -68,6 +68,7 @@
         <p class="text-xs text-slate-400">Last synchronized: <span id="last-updated-text" class="text-slate-300 font-mono">Just now</span></p>
       </div>
       <div class="flex items-center gap-2">
+          <button onclick="fetchLatestData()" id="refresh-results-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Results</button>
           <button onclick="exportResultsPdf()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/40 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5"><i data-lucide="file-down" class="w-3.5 h-3.5"></i> Export PDF</button>
         <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium transition">Logout</button>
       </div>
@@ -109,7 +110,8 @@
       gasUrl: 'https://script.google.com/macros/s/AKfycbzfwITF25v3nen8dpPNviVEWTsDb6NUukjfqDigzkqcVz8McU_i0rSvcMUmzTCbIu41EA/exec',
       authToken: sessionStorage.getItem('vote_admin_token') || null,
       votes: [],
-      charts: { bar: null, doughnut: null }
+      charts: { bar: null, doughnut: null },
+      refreshTimer: null
     };
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -128,7 +130,12 @@
     }
 
     function showLogin(){ document.getElementById('view-login').classList.remove('hidden'); document.getElementById('view-dashboard').classList.add('hidden'); }
-    function showDashboard(){ document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); fetchLatestData(); }
+    function showDashboard(){
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.remove('hidden');
+      fetchLatestData();
+      if (!state.refreshTimer) state.refreshTimer = setInterval(fetchLatestData, 30000);
+    }
 
     function showLoginAlert(message, type) {
       const box = document.getElementById('login-alert');
@@ -180,6 +187,8 @@
     }
 
     async function fetchLatestData() {
+      const refreshButton = document.getElementById('refresh-results-btn');
+      if (refreshButton) refreshButton.disabled = true;
       try {
         const json = await requestJsonp({ action: 'getDashboardData', token: state.authToken });
         if (json.status === 'success' && json.data) {
@@ -191,6 +200,8 @@
         }
       } catch (err) {
         console.error('Data sync error:', err);
+      } finally {
+        if (refreshButton) refreshButton.disabled = false;
       }
       document.getElementById('last-updated-text').innerText = new Date().toLocaleTimeString();
     }
@@ -198,6 +209,10 @@
     function logout() {
       sessionStorage.removeItem('vote_admin_token');
       state.authToken = null;
+      if (state.refreshTimer) {
+        clearInterval(state.refreshTimer);
+        state.refreshTimer = null;
+      }
       showLogin();
     }
 
