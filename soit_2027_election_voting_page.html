@@ -69,7 +69,7 @@
       <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto text-emerald-400"><i data-lucide="check-circle" class="w-10 h-10"></i></div>
       <h2 class="text-2xl font-bold text-white">Ballot Successfully Submitted!</h2>
       <p class="text-sm text-slate-300 max-w-md mx-auto">Your vote for the East Sepik Students Association Presidential Election has been recorded securely.</p>
-      <div class="pt-2"><span class="inline-block bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-xs font-mono text-brand-yellow">Receipt Token: <span id="receipt-id"></span></span></div>
+      <div class="pt-2"><span class="inline-flex flex-col gap-1 bg-slate-950 px-5 py-3 rounded-xl border border-brand-yellow/40 text-xs font-mono text-slate-300"><span class="text-[10px] uppercase tracking-[0.2em] text-brand-yellow">Submission ID</span><span id="receipt-id" class="text-base font-black text-white select-all">--</span></span></div>
     </div>
 
     <section id="voter-info-section" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
@@ -285,12 +285,12 @@
           showAlert(response.message || 'Your ballot was not accepted.', 'error');
           return;
         }
-        const receipt = response.receipt || 'ESAS-2027-' + Math.floor(100000 + Math.random() * 900000);
+        const receipt = String(response.receipt || response.receiptToken || response.submissionId || (response.data && (response.data.receipt || response.data.submissionId)) || 'ESAS-2027-' + Math.floor(100000 + Math.random() * 900000));
         localStorage.setItem('esas_vote_receipt', receipt);
         document.getElementById('voter-info-section').classList.add('hidden');
         document.getElementById('voting-ballot-form').classList.add('hidden');
         document.getElementById('already-voted-screen').classList.remove('hidden');
-        document.getElementById('receipt-id').innerText = receipt;
+        document.getElementById('receipt-id').textContent = receipt;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
         console.error(err);
@@ -331,7 +331,7 @@
         document.getElementById('voter-info-section').classList.add('hidden');
         document.getElementById('voting-ballot-form').classList.add('hidden');
         document.getElementById('already-voted-screen').classList.remove('hidden');
-        document.getElementById('receipt-id').innerText = existing;
+        document.getElementById('receipt-id').textContent = existing;
       }
       updateReviewPanel();
       updateProgress();
