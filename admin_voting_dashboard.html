@@ -129,12 +129,25 @@
       lucide.createIcons();
     }
 
-    function showLogin(){ document.getElementById('view-login').classList.remove('hidden'); document.getElementById('view-dashboard').classList.add('hidden'); }
+    function showLogin(){ 
+      document.getElementById('view-login').classList.remove('hidden'); 
+      document.getElementById('view-dashboard').classList.add('hidden'); 
+    }
+    
     function showDashboard(){
       document.getElementById('view-login').classList.add('hidden');
       document.getElementById('view-dashboard').classList.remove('hidden');
+      console.log('[Admin Dashboard] Dashboard loaded, starting auto-refresh');
       fetchLatestData();
-      if (!state.refreshTimer) state.refreshTimer = setInterval(fetchLatestData, 10000);
+      // Always clear existing timer before creating new one
+      if (state.refreshTimer) {
+        clearInterval(state.refreshTimer);
+      }
+      // Set up auto-refresh every 10 seconds
+      state.refreshTimer = setInterval(() => {
+        console.log('[Admin Dashboard] Auto-refresh triggered (10s interval)');
+        fetchLatestData();
+      }, 10000);
     }
 
     function showLoginAlert(message, type) {
@@ -201,22 +214,53 @@
 
     async function fetchLatestData() {
       const refreshButton = document.getElementById('refresh-results-btn');
+      const connectionBadge = document.getElementById('connection-badge');
       if (refreshButton) refreshButton.disabled = true;
+      
+      // Show loading state
+      if (connectionBadge) {
+        connectionBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30';
+        connectionBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> SYNCING...';
+      }
+      
       try {
+        console.log('[Admin Dashboard] Fetching latest data...');
         const json = await requestJsonp({ action: 'getDashboardData', token: state.authToken });
+        console.log('[Admin Dashboard] Response received:', json);
+        
         if (json.status === 'success' && json.data) {
           state.votes = normalizeVotes(json.data.votes || []);
           updateMetrics();
           renderTable();
+          console.log(`[Admin Dashboard] Updated successfully. Total votes: ${state.votes.length}`);
+          
+          // Show success state
+          if (connectionBadge) {
+            connectionBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+            connectionBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LIVE CONNECTED';
+          }
         } else if (json.message && json.message.includes('Unauthorized')) {
+          console.error('[Admin Dashboard] Session expired, logging out');
           logout();
+        } else {
+          console.error('[Admin Dashboard] Unexpected response:', json);
+          // Show error state
+          if (connectionBadge) {
+            connectionBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/30';
+            connectionBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-400"></span> SYNC ERROR';
+          }
         }
       } catch (err) {
-        console.error('Data sync error:', err);
+        console.error('[Admin Dashboard] Data sync error:', err);
+        // Show error state
+        if (connectionBadge) {
+          connectionBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/30';
+          connectionBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-400"></span> CONNECTION ERROR';
+        }
       } finally {
         if (refreshButton) refreshButton.disabled = false;
+        document.getElementById('last-updated-text').innerText = new Date().toLocaleTimeString();
       }
-      document.getElementById('last-updated-text').innerText = new Date().toLocaleTimeString();
     }
 
     function logout() {
