@@ -65,7 +65,7 @@
     <header class="glass-card border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 class="text-lg font-bold text-white flex items-center gap-2"><span>Election Control Center</span><span id="connection-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LIVE CONNECTED</span></h1>
-        <p class="text-xs text-slate-400">Last synchronized: <span id="last-updated-text" class="text-slate-300 font-mono">Just now</span></p>
+        <p class="text-xs text-slate-400">Last synchronized: <span id="last-updated-text" class="text-slate-300 font-mono">Just now</span> • Next refresh in <span id="countdown-timer" class="text-emerald-400 font-bold">8s</span></p>
       </div>
       <div class="flex items-center gap-2">
           <button onclick="fetchLatestData()" id="refresh-results-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Results</button>
@@ -111,7 +111,9 @@
       authToken: sessionStorage.getItem('vote_admin_token') || null,
       votes: [],
       charts: { bar: null, doughnut: null },
-      refreshTimer: null
+      refreshTimer: null,
+      countdownTimer: null,
+      countdownSeconds: 8
     };
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -134,20 +136,45 @@
       document.getElementById('view-dashboard').classList.add('hidden'); 
     }
     
+    function startCountdown() {
+      state.countdownSeconds = 8;
+      const countdownEl = document.getElementById('countdown-timer');
+      if (countdownEl) countdownEl.textContent = state.countdownSeconds + 's';
+      
+      if (state.countdownTimer) clearInterval(state.countdownTimer);
+      
+      state.countdownTimer = setInterval(() => {
+        state.countdownSeconds--;
+        if (countdownEl) {
+          countdownEl.textContent = state.countdownSeconds + 's';
+          if (state.countdownSeconds <= 3) {
+            countdownEl.className = 'text-yellow-400 font-bold';
+          } else {
+            countdownEl.className = 'text-emerald-400 font-bold';
+          }
+        }
+        if (state.countdownSeconds <= 0) {
+          if (state.countdownTimer) clearInterval(state.countdownTimer);
+        }
+      }, 1000);
+    }
+    
     function showDashboard(){
       document.getElementById('view-login').classList.add('hidden');
       document.getElementById('view-dashboard').classList.remove('hidden');
-      console.log('[Admin Dashboard] Dashboard loaded, starting auto-refresh');
+      console.log('[Admin Dashboard] Dashboard loaded, starting auto-refresh (8s interval)');
       fetchLatestData();
+      startCountdown();
       // Always clear existing timer before creating new one
       if (state.refreshTimer) {
         clearInterval(state.refreshTimer);
       }
-      // Set up auto-refresh every 10 seconds
+      // Set up auto-refresh every 8 seconds
       state.refreshTimer = setInterval(() => {
-        console.log('[Admin Dashboard] Auto-refresh triggered (10s interval)');
+        console.log('[Admin Dashboard] Auto-refresh triggered (8s interval)');
         fetchLatestData();
-      }, 10000);
+        startCountdown();
+      }, 8000);
     }
 
     function showLoginAlert(message, type) {
@@ -269,6 +296,10 @@
       if (state.refreshTimer) {
         clearInterval(state.refreshTimer);
         state.refreshTimer = null;
+      }
+      if (state.countdownTimer) {
+        clearInterval(state.countdownTimer);
+        state.countdownTimer = null;
       }
       showLogin();
     }

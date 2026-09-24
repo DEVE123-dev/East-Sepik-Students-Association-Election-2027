@@ -279,13 +279,21 @@
         treasurer: ''
       };
 
+      console.log('[Voting] Submitting vote...', { voterId, voterName, candidate: ballotState.selections.president });
+
       try {
         const response = await requestVoteJsonp(payload);
+        console.log('[Voting] Response received:', response);
+        
         if (response.status !== 'success') {
-          showAlert(response.message || 'Your ballot was not accepted.', 'error');
+          const errorMsg = response.message || 'Your ballot was not accepted.';
+          console.error('[Voting] Vote rejected:', errorMsg);
+          showAlert(errorMsg, 'error');
           return;
         }
+        
         const receipt = String(response.receipt || response.receiptToken || response.submissionId || (response.data && (response.data.receipt || response.data.submissionId)) || 'ESAS-2027-' + Math.floor(100000 + Math.random() * 900000));
+        console.log('[Voting] Vote successful! Receipt:', receipt);
         localStorage.setItem('esas_vote_receipt', receipt);
         document.getElementById('voter-info-section').classList.add('hidden');
         document.getElementById('voting-ballot-form').classList.add('hidden');
@@ -293,8 +301,8 @@
         document.getElementById('receipt-id').textContent = receipt;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
-        console.error(err);
-        showAlert('An issue occurred while recording your vote. Please try again.', 'error');
+        console.error('[Voting] Error submitting vote:', err);
+        showAlert('An issue occurred while recording your vote: ' + err.message, 'error');
       } finally {
         button.disabled = false;
         button.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Submit Vote';
@@ -307,10 +315,23 @@
         const callbackName = `esasVoteJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const query = new URLSearchParams({ ...payload, callback: callbackName });
         const script = document.createElement('script');
-        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The voting service timed out. Your vote may already have been recorded. Please check your submission status before trying again.')); }, 120000);
+        console.log('[Voting] Sending JSONP request:', ballotState.gasUrl);
+        const timeoutId = setTimeout(() => { 
+          cleanup(); 
+          console.error('[Voting] Request timed out after 120 seconds');
+          reject(new Error('The voting service timed out after 2 minutes. Your vote may have been recorded. Please check your submission status before trying again.')); 
+        }, 120000);
         const cleanup = () => { clearTimeout(timeoutId); delete window[callbackName]; script.remove(); };
-        window[callbackName] = data => { cleanup(); resolve(data); };
-        script.onerror = () => { cleanup(); reject(new Error('The voting service could not be reached.')); };
+        window[callbackName] = data => { 
+          console.log('[Voting] JSONP callback received');
+          cleanup(); 
+          resolve(data); 
+        };
+        script.onerror = () => { 
+          console.error('[Voting] Script failed to load');
+          cleanup(); 
+          reject(new Error('The voting service could not be reached. Please check your internet connection.')); 
+        };
         script.src = `${ballotState.gasUrl}?${query.toString()}`;
         document.head.appendChild(script);
       });
