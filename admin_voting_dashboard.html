@@ -134,7 +134,7 @@
       document.getElementById('view-login').classList.add('hidden');
       document.getElementById('view-dashboard').classList.remove('hidden');
       fetchLatestData();
-      if (!state.refreshTimer) state.refreshTimer = setInterval(fetchLatestData, 30000);
+      if (!state.refreshTimer) state.refreshTimer = setInterval(fetchLatestData, 10000);
     }
 
     function showLoginAlert(message, type) {
