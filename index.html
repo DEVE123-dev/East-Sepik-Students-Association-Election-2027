@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IBS University & Southern Cross University East Sepik Students Association Presidential Election</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#B91C1C',
+              redDark: '#7F1D1D',
+              green: '#16A34A',
+              greenDark: '#166534',
+              yellow: '#FACC15',
+              yellowDark: '#A16207'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #0b2d1d 0%, #103a2b 30%, #0b1f17 100%); overflow-x: hidden; }
+    .hero-glow { background: radial-gradient(circle at top, rgba(22, 163, 74, 0.22), transparent 30%), linear-gradient(180deg, #0b2d1d 0%, #103a2b 30%, #0b1f17 100%); }
+    .glass-panel { background: rgba(17, 24, 39, 0.72); backdrop-filter: blur(16px); border: 1px solid rgba(148,163,184,0.18); }
+    .card-hover { transition: all 0.2s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(15, 23, 42, 0.35); }
+    @media (max-width: 640px) {
+      header > div { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+      main { padding-top: 2rem; padding-bottom: 2rem; }
+      main > section { border-radius: 1.25rem; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased text-white hero-glow selection:bg-brand-red selection:text-white">
+  <header class="w-full border-b border-emerald-500/20 bg-[#0d2e20]/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-brand-red text-white flex items-center justify-center shadow-md">
+          <i data-lucide="vote" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-[0.25em] font-extrabold text-brand-yellow">Election Portal</div>
+          <div class="text-sm font-black text-white">IBS & SCU East Sepik</div>
+        </div>
+      </div>
+      <a href="admin_voting_dashboard.html" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-100 hover:text-white bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/25 px-3.5 py-2 rounded-xl transition duration-200">
+        <i data-lucide="lock" class="w-3.5 h-3.5 text-brand-yellow"></i>
+        <span>ADMIN LOGIN</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 flex flex-col justify-center space-y-10">
+    <section class="glass-panel rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden shadow-xl">
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-green"></div>
+      <p class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-brand-yellow mb-6">IBS University & Southern Cross University</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 items-center justify-items-center">
+        <div class="w-full max-w-[220px] h-28 bg-slate-950/60 border border-slate-700 rounded-2xl p-3 flex flex-col items-center justify-center shadow-sm">
+          <img src="Images/ibsu.png" alt="IBS University Logo" class="w-16 h-16 object-contain rounded-xl bg-brand-red/10 border border-brand-red/30 p-1" />
+          <span class="text-[10px] uppercase font-bold text-slate-200 mt-2">IBS University</span>
+        </div>
+        <div class="w-full max-w-[220px] h-28 bg-slate-950/60 border border-slate-700 rounded-2xl p-3 flex flex-col items-center justify-center shadow-sm">
+          <img src="Images/southerncrossuniversity.jpeg" alt="Southern Cross University Logo" class="w-16 h-16 object-contain rounded-xl bg-brand-green/10 border border-brand-green/30 p-1" />
+          <span class="text-[10px] uppercase font-bold text-slate-200 mt-2">Southern Cross University</span>
+        </div>
+        <div class="w-full max-w-[220px] h-28 bg-slate-950/60 border border-slate-700 rounded-2xl p-3 flex flex-col items-center justify-center shadow-sm">
+          <img src="Images/ESP.jpeg" alt="East Sepik Students Association Logo" class="w-16 h-16 object-contain rounded-xl bg-brand-yellow/20 border border-brand-yellow/50 p-1" />
+          <span class="text-[10px] uppercase font-bold text-slate-200 mt-2">East Sepik Students Association</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="text-center space-y-6 max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-red/10 border border-brand-red/25 text-xs font-bold uppercase tracking-[0.18em] text-brand-red shadow-sm">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span>Official Student Voting Portal</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+        East Sepik Students Association<br />
+        <span class="bg-gradient-to-r from-brand-red via-brand-yellow to-brand-green bg-clip-text text-transparent">Presidential Election</span>
+      </h1>
+      <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">Your Voice. Your Choice. Your President.</p>
+      <div class="inline-flex items-center gap-2 text-xs font-medium bg-slate-900/70 px-4 py-2 rounded-xl border border-slate-700 text-slate-200">
+        <i data-lucide="info" class="w-4 h-4 text-brand-yellow"></i>
+        <span>Each eligible student may cast one vote for one presidential candidate.</span>
+      </div>
+    </section>
+
+    <section class="flex flex-col sm:flex-row items-center justify-center gap-5 pt-2">
+      <a href="soit_2027_election_voting_page.html" class="w-full sm:w-auto min-w-[280px] group inline-flex items-center justify-center gap-3 bg-gradient-to-r from-brand-red to-red-600 hover:from-red-700 hover:to-brand-red text-white font-black text-base px-8 py-4 rounded-2xl shadow-xl shadow-red-500/25 transition duration-300 transform hover:-translate-y-0.5 text-center">
+        <i data-lucide="vote" class="w-6 h-6 text-brand-yellow"></i>
+        <span>CAST YOUR VOTE</span>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-white"></i>
+      </a>
+      <a href="admin_voting_dashboard.html" class="w-full sm:w-auto min-w-[220px] inline-flex items-center justify-center gap-2.5 bg-white hover:bg-slate-100 text-slate-700 hover:text-slate-900 font-bold text-sm px-6 py-4 rounded-2xl border border-slate-200 transition duration-200 shadow-md text-center">
+        <i data-lucide="user-check" class="w-5 h-5 text-brand-green"></i>
+        <span>ADMIN LOGIN</span>
+      </a>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+      <div class="glass-panel card-hover p-6 rounded-2xl space-y-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-red/10 border border-brand-red/20 text-brand-red flex items-center justify-center"><i data-lucide="lock" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Verified Voting</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">Students complete the verification step before selecting the presidential candidate. The backend prevents duplicate submissions.</p>
+      </div>
+      <div class="glass-panel card-hover p-6 rounded-2xl space-y-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-green/10 border border-brand-green/20 text-brand-green flex items-center justify-center"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Single Candidate Choice</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">The voter may select only one presidential candidate. The system automatically prevents multiple selections for the same ballot.</p>
+      </div>
+      <div class="glass-panel card-hover p-6 rounded-2xl space-y-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-yellow/20 border border-brand-yellow/40 text-brand-yellowDark flex items-center justify-center"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Secure Confirmation</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">The ballot is reviewed before confirmation and cannot be changed after submission.</p>
+      </div>
+    </section>
+
+    <footer class="pt-8 pb-4 text-center">
+      <p class="text-[10px] uppercase tracking-[0.24em] text-slate-300">IBS University & Southern Cross University East Sepik Students Association<br />Presidential Election 2027</p>
+    </footer>
+  </main>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

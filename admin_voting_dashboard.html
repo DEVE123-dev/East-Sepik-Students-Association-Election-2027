@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>East Sepik Students Association Presidential Election - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { red: '#B91C1C', green: '#16A34A', yellow: '#FACC15' } } } } }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #0b2d1d 0%, #103a2b 30%, #0b1f17 100%); overflow-x: hidden; }
+    .glass-card { background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    @media (max-width: 640px) {
+      #view-login { padding: 1rem; }
+      #view-login .glass-card { padding: 1.25rem; }
+      #view-dashboard header { padding: 1rem; }
+      #view-dashboard main { padding: 1rem; }
+      #view-dashboard header > div:last-child { width: 100%; justify-content: stretch; }
+      #view-dashboard header > div:last-child button { flex: 1; }
+    }
+    @media print {
+      body { background: #ffffff !important; color: #111827 !important; }
+      #view-login, #connection-badge, header button, canvas { display: none !important; }
+      #view-dashboard { display: block !important; min-height: auto !important; }
+      header, .glass-card { background: #ffffff !important; color: #111827 !important; box-shadow: none !important; border-color: #d1d5db !important; }
+      header { padding: 0 0 16px !important; }
+      main { padding: 16px 0 0 !important; }
+      h1, h3, span, p, th, td { color: #111827 !important; }
+      .relative.min-h-\[260px\] { min-height: 80px !important; }
+      table { color: #111827 !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-transparent text-slate-200">
+  <div id="view-login" class="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="w-full max-w-md glass-card rounded-2xl p-8 shadow-2xl relative z-10">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-600/20 text-red-400 border border-red-500/30 mb-4 shadow-lg shadow-red-500/10"><i data-lucide="vote" class="w-8 h-8"></i></div>
+        <h1 class="text-2xl font-bold tracking-tight text-white">Admin Authentication</h1>
+        <p class="text-xs text-slate-400 mt-1">East Sepik Students Association Presidential Election</p>
+      </div>
+      <div id="login-alert" class="hidden mb-6 p-3 rounded-lg text-xs flex items-center gap-2 border"></div>
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Admin Username</label>
+          <div class="relative"><i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="text" id="admin-username" required autocomplete="username" placeholder="Enter admin username" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-2.5 pl-10 text-sm text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition" /></div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Admin Passcode</label>
+          <div class="relative"><i data-lucide="lock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="password" id="admin-password" required autocomplete="current-password" placeholder="Enter admin password" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-2.5 pl-10 pr-10 text-sm text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition" /><button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"><i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i></button></div>
+        </div>
+        <button type="submit" id="login-btn" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2.5 rounded-xl transition shadow-lg shadow-red-600/25 flex items-center justify-center gap-2"><i data-lucide="shield-check" class="w-4 h-4"></i> Authenticate & Open Portal</button>
+      </form>
+      <a href="index.html" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2.5 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5"><i data-lucide="home" class="w-3.5 h-3.5"></i> Return to Home</a>
+    </div>
+  </div>
+
+  <div id="view-dashboard" class="hidden flex-1 flex flex-col min-h-screen">
+    <header class="glass-card border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-lg font-bold text-white flex items-center gap-2"><span>Election Control Center</span><span id="connection-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LIVE CONNECTED</span></h1>
+        <p class="text-xs text-slate-400">Last synchronized: <span id="last-updated-text" class="text-slate-300 font-mono">Just now</span></p>
+      </div>
+      <div class="flex items-center gap-2">
+          <button onclick="exportResultsPdf()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/40 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5"><i data-lucide="file-down" class="w-3.5 h-3.5"></i> Export PDF</button>
+        <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium transition">Logout</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-6 space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden"><div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Votes</span><div class="p-2 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20"><i data-lucide="vote" class="w-5 h-5"></i></div></div><div class="mt-3"><span id="metric-total-votes" class="text-3xl font-extrabold text-white">0</span></div><p class="text-[11px] text-slate-400 mt-1">Recorded ballots</p></div>
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden"><div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Leading Candidate</span><div class="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20"><i data-lucide="trophy" class="w-5 h-5"></i></div></div><div class="mt-3"><span id="metric-leading-candidate" class="text-xl font-bold text-white block">--</span></div><p id="metric-leading-votes" class="text-[11px] text-slate-400 mt-1">0 votes</p></div>
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden"><div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Candidates</span><div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20"><i data-lucide="users" class="w-5 h-5"></i></div></div><div class="mt-3"><span id="metric-candidates-count" class="text-3xl font-extrabold text-white">0</span></div><p class="text-[11px] text-slate-400 mt-1">Current presidential nominees</p></div>
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden"><div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Backend API</span><div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20"><i data-lucide="activity" class="w-5 h-5"></i></div></div><div class="mt-3"><span id="metric-api-status" class="text-lg font-bold text-emerald-400">Active</span></div><p class="text-[11px] text-slate-400 mt-1">Google Apps Script live service</p></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-red-400"></i> Presidential Vote Tally</h3><span class="text-[11px] text-slate-400">Bar Chart</span></div>
+          <div class="relative min-h-[260px]"><canvas id="chart-candidate-bar"></canvas></div>
+        </div>
+        <div class="glass-card p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i> Vote Share</h3><span class="text-[11px] text-slate-400">Distribution</span></div>
+          <div class="relative min-h-[260px]"><canvas id="chart-share-doughnut"></canvas></div>
+        </div>
+      </div>
+
+      <div class="glass-card p-5 rounded-2xl border border-slate-800">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="table" class="w-4 h-4 text-yellow-400"></i> Live Ballot Log</h3><span class="text-[11px] text-slate-400">Google Sheets feed</span></div>
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800"><tr><th class="p-3 font-semibold">Timestamp</th><th class="p-3 font-semibold">Voter ID</th><th class="p-3 font-semibold">Voter Name</th><th class="p-3 font-semibold">Email</th><th class="p-3 font-semibold">Candidate</th></tr></thead>
+            <tbody id="table-votes-body" class="divide-y divide-slate-800/60 font-mono text-slate-300"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      gasUrl: 'https://script.google.com/macros/s/AKfycbzfwITF25v3nen8dpPNviVEWTsDb6NUukjfqDigzkqcVz8McU_i0rSvcMUmzTCbIu41EA/exec',
+      authToken: sessionStorage.getItem('vote_admin_token') || null,
+      votes: [],
+      charts: { bar: null, doughnut: null }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      if (state.authToken) showDashboard(); else showLogin();
+      initCharts();
+    });
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('admin-password');
+      const icon = document.getElementById('eye-icon');
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+      lucide.createIcons();
+    }
+
+    function showLogin(){ document.getElementById('view-login').classList.remove('hidden'); document.getElementById('view-dashboard').classList.add('hidden'); }
+    function showDashboard(){ document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-dashboard').classList.remove('hidden'); fetchLatestData(); }
+
+    function showLoginAlert(message, type) {
+      const box = document.getElementById('login-alert');
+      box.classList.remove('hidden', 'bg-rose-500/10', 'border-rose-500/30', 'text-rose-300', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300');
+      box.classList.add(type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300');
+      box.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> <span>${message}</span>`;
+      lucide.createIcons();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Authenticating...';
+      lucide.createIcons();
+      try {
+        const res = await requestJsonp({ action: 'login', username, password });
+        if (res.status === 'success') {
+          sessionStorage.setItem('vote_admin_token', res.token);
+          state.authToken = res.token;
+          showDashboard();
+        } else {
+          showLoginAlert(res.message || 'Authentication failed', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showLoginAlert('Failed to connect to the Apps Script server.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="shield-check" class="w-4 h-4"></i> Authenticate & Open Portal';
+        lucide.createIcons();
+      }
+    }
+
+    function requestJsonp(params) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `esasJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const query = new URLSearchParams({ ...params, callback: callbackName });
+        const script = document.createElement('script');
+        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The Apps Script request timed out.')); }, 15000);
+        const cleanup = () => { clearTimeout(timeoutId); delete window[callbackName]; script.remove(); }
+        window[callbackName] = data => { cleanup(); resolve(data); };
+        script.onerror = () => { cleanup(); reject(new Error('The Apps Script endpoint could not be reached.')); };
+        script.src = `${state.gasUrl}?${query.toString()}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    async function fetchLatestData() {
+      try {
+        const json = await requestJsonp({ action: 'getDashboardData', token: state.authToken });
+        if (json.status === 'success' && json.data) {
+          state.votes = normalizeVotes(json.data.votes || []);
+          updateMetrics();
+          renderTable();
+        } else if (json.message && json.message.includes('Unauthorized')) {
+          logout();
+        }
+      } catch (err) {
+        console.error('Data sync error:', err);
+      }
+      document.getElementById('last-updated-text').innerText = new Date().toLocaleTimeString();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('vote_admin_token');
+      state.authToken = null;
+      showLogin();
+    }
+
+    function exportResultsPdf() {
+      const originalTitle = document.title;
+      document.title = 'ESAS Presidential Election Results';
+      window.print();
+      setTimeout(() => { document.title = originalTitle; }, 1000);
+    }
+
+    function normalizeVotes(votes) {
+      return votes.map(v => ({
+        timestamp: v.timestamp,
+        voterId: String(v.voterId || ''),
+        voterName: String(v.voterName || ''),
+        voterEmail: String(v.voterEmail || ''),
+        candidate: String(v.president || 'Abstain')
+      }));
+    }
+
+    function updateMetrics() {
+      const counts = {};
+      state.votes.forEach(v => { counts[v.candidate] = (counts[v.candidate] || 0) + 1; });
+      const candidateEntries = Object.entries(counts).filter(([name]) => name && name !== 'Abstain');
+      const totalVotes = state.votes.length;
+      const leader = candidateEntries.sort((a,b) => b[1]-a[1])[0] || ['--', 0];
+      document.getElementById('metric-total-votes').innerText = totalVotes;
+      document.getElementById('metric-leading-candidate').innerText = leader[0];
+      document.getElementById('metric-leading-votes').innerText = `${leader[1]} votes (${totalVotes ? ((leader[1] / totalVotes) * 100).toFixed(1) : '0.0'}%)`;
+      document.getElementById('metric-candidates-count').innerText = candidateEntries.length;
+      renderCharts(candidateEntries);
+    }
+
+    function initCharts() {
+      const barCtx = document.getElementById('chart-candidate-bar').getContext('2d');
+      const doughnutCtx = document.getElementById('chart-share-doughnut').getContext('2d');
+      state.charts.bar = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{ label: 'Votes', data: [], backgroundColor: ['#B91C1C', '#16A34A'], borderRadius: 8 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+      state.charts.doughnut = new Chart(doughnutCtx, {
+        type: 'doughnut',
+        data: {
+          labels: [],
+          datasets: [{ data: [], backgroundColor: ['#B91C1C', '#16A34A'], borderWidth: 2 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#94a3b8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCharts(candidateEntries) {
+      const labels = candidateEntries.map(([name]) => name);
+      const values = candidateEntries.map(([,count]) => count);
+      state.charts.bar.data.labels = labels;
+      state.charts.bar.data.datasets[0].data = values;
+      state.charts.bar.update();
+      state.charts.doughnut.data.labels = labels;
+      state.charts.doughnut.data.datasets[0].data = values;
+      state.charts.doughnut.update();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('table-votes-body');
+      tbody.innerHTML = '';
+      if (!state.votes.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500">No live records yet.</td></tr>';
+        return;
+      }
+      state.votes.slice().reverse().forEach(v => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-900/40 transition';
+        row.innerHTML = `
+          <td class="p-3 text-slate-400">${new Date(v.timestamp).toLocaleString()}</td>
+          <td class="p-3 text-blue-400 font-semibold">${v.voterId}</td>
+          <td class="p-3 text-white">${v.voterName}</td>
+          <td class="p-3 text-slate-400">${v.voterEmail}</td>
+          <td class="p-3 text-white font-medium">${v.candidate}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>

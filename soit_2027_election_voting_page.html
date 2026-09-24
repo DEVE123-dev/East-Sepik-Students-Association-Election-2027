@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>East Sepik Students Association Presidential Election - Vote</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#B91C1C',
+              redDark: '#7F1D1D',
+              green: '#16A34A',
+              greenDark: '#166534',
+              yellow: '#FACC15',
+              yellowDark: '#A16207'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #0b2d1d 0%, #103a2b 30%, #0b1f17 100%); overflow-x: hidden; }
+    .candidate-card { transition: all 0.25s ease; }
+    .candidate-card.selected { border-color: #16A34A !important; background: rgba(22, 163, 74, 0.08) !important; box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.35), 0 10px 28px rgba(22, 163, 74, 0.12); }
+    header h1 { min-width: 0; overflow-wrap: anywhere; }
+    @media (max-width: 640px) {
+      header > div { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+      header .flex.items-center.gap-3:last-child { width: 100%; justify-content: flex-start; }
+      main { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+      main > section, form > div { border-radius: 1.25rem; }
+      .sticky { bottom: 0.5rem; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-transparent text-slate-200">
+  <header class="bg-gradient-to-r from-[#0d2e20] via-[#166534] to-[#0b1f17] border-b border-brand-yellow/30 sticky top-0 z-30 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-white/10 border-2 border-brand-yellow p-1 flex items-center justify-center shrink-0 shadow-inner">
+          <i data-lucide="vote" class="w-6 h-6 text-brand-yellow"></i>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-[0.24em] font-extrabold text-brand-yellow">Official Ballot</div>
+          <h1 class="text-base sm:text-lg font-black text-white">East Sepik Students Association Presidential Election</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-xs bg-[#0b1f17]/80 hover:bg-[#112f21] text-slate-100 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition">
+          <i data-lucide="home" class="w-3.5 h-3.5 text-brand-yellow"></i><span>Home</span>
+        </a>
+        <span class="text-xs text-emerald-300 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+          <i data-lucide="cloud" class="w-3.5 h-3.5"></i><span>Backend Connected</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div id="voter-alert" class="hidden p-4 rounded-xl text-xs flex items-center justify-between border shadow-lg"></div>
+
+    <div id="already-voted-screen" class="hidden bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl">
+      <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto text-emerald-400"><i data-lucide="check-circle" class="w-10 h-10"></i></div>
+      <h2 class="text-2xl font-bold text-white">Ballot Successfully Submitted!</h2>
+      <p class="text-sm text-slate-300 max-w-md mx-auto">Your vote for the East Sepik Students Association Presidential Election has been recorded securely.</p>
+      <div class="pt-2"><span class="inline-block bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-xs font-mono text-brand-yellow">Receipt Token: <span id="receipt-id"></span></span></div>
+    </div>
+
+    <section id="voter-info-section" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-2 h-full bg-brand-yellow"></div>
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="user-check" class="w-5 h-5 text-brand-yellow"></i> Step 1: Verify Voter Credentials</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Enter your official student details before submitting your presidential vote.</p>
+        </div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>1 Ballot Allowed per Student</span></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Student ID Number *</label>
+          <div class="relative"><i data-lucide="credit-card" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i><input type="text" id="input-voter-id" placeholder="e.g. 2027-ESAS-014" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl py-2.5 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-brand-yellow transition font-mono" /></div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Full Student Name *</label>
+          <div class="relative"><i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i><input type="text" id="input-voter-name" placeholder="e.g. Jane Doe" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl py-2.5 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-brand-yellow transition" /></div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Student Email Address *</label>
+          <div class="relative"><i data-lucide="mail" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i><input type="email" id="input-voter-email" placeholder="student@ibsu.ac.pg" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl py-2.5 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-brand-yellow transition" /></div>
+        </div>
+      </div>
+    </section>
+
+    <form id="voting-ballot-form" onsubmit="handleBallotSubmit(event)" class="space-y-8">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-6 relative">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-brand-red border border-brand-yellow/40 flex items-center justify-center text-brand-yellow font-bold">1</div>
+            <div>
+              <h2 class="text-lg font-extrabold text-white">Presidential Candidates</h2>
+              <p class="text-xs text-slate-400">Select only one candidate</p>
+            </div>
+          </div>
+          <span id="badge-pos-president" class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-medium">Only One Selection Allowed</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div onclick="selectCandidate('Jubal Suagu')" id="card-jubal" class="candidate-card bg-slate-900 border border-slate-800 rounded-2xl p-5 cursor-pointer hover:border-slate-600 relative flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between gap-4">
+                <div class="relative shrink-0">
+                  <div class="w-20 h-20 rounded-full bg-gradient-to-br from-brand-red to-slate-800 p-0.5 border-2 border-brand-yellow/60 overflow-hidden flex items-center justify-center shadow-lg">
+                    <img src="Images/jubal.jpeg" alt="Jubal Suagu" class="w-full h-full object-cover rounded-full" />
+                  </div>
+                  <span class="absolute -bottom-1 -right-1 bg-brand-red text-brand-yellow text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-brand-yellow/50">#1</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="inline-block text-[10px] font-bold text-brand-yellow bg-brand-red/40 px-2 py-0.5 rounded border border-brand-yellow/20 mb-1">Candidate 1</span>
+                  <h3 class="text-base font-bold text-white truncate">Jubal Suagu</h3>
+                  <p class="text-xs text-slate-400">Presidential Candidate</p>
+                </div>
+                <input type="radio" name="pres_choice" value="Jubal Suagu" id="cand-jubal" class="w-5 h-5 accent-brand-yellow shrink-0 cursor-pointer pointer-events-none" />
+              </div>
+              <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                <p class="font-semibold text-brand-yellow text-[11px]">Candidate Summary:</p>
+                <p>Jubal Suagu is seeking the presidency to represent student voices, strengthen student welfare, and build stronger engagement across institutions and communities.</p>
+              </div>
+            </div>
+          </div>
+
+          <div onclick="selectCandidate('Joesen Weikun')" id="card-joesen" class="candidate-card bg-slate-900 border border-slate-800 rounded-2xl p-5 cursor-pointer hover:border-slate-600 relative flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between gap-4">
+                <div class="relative shrink-0">
+                  <div class="w-20 h-20 rounded-full bg-gradient-to-br from-brand-red to-slate-800 p-0.5 border-2 border-brand-yellow/60 overflow-hidden flex items-center justify-center shadow-lg">
+                    <img src="Images/joesen.jpeg" alt="Joesen Weikun" class="w-full h-full object-cover rounded-full" />
+                  </div>
+                  <span class="absolute -bottom-1 -right-1 bg-brand-red text-brand-yellow text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-brand-yellow/50">#2</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="inline-block text-[10px] font-bold text-brand-yellow bg-brand-red/40 px-2 py-0.5 rounded border border-brand-yellow/20 mb-1">Candidate 2</span>
+                  <h3 class="text-base font-bold text-white truncate">Joesen Weikun</h3>
+                  <p class="text-xs text-slate-400">Presidential Candidate</p>
+                </div>
+                <input type="radio" name="pres_choice" value="Joesen Weikun" id="cand-joesen" class="w-5 h-5 accent-brand-yellow shrink-0 cursor-pointer pointer-events-none" />
+              </div>
+              <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                <p class="font-semibold text-brand-yellow text-[11px]">Candidate Summary:</p>
+                <p>Joesen Weikun is offering a leadership platform focused on transparency, student inclusion, and stronger institutional partnerships for East Sepik students.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.24em] text-slate-400 font-bold">Review Before Submission</p>
+            <h3 class="text-lg font-bold text-white mt-1">Your Selected Candidate</h3>
+          </div>
+          <div class="text-xs text-amber-300 border border-amber-500/30 bg-amber-500/10 rounded-full px-3 py-1.5">Once submitted, the vote cannot be changed.</div>
+        </div>
+        <div id="review-selection" class="mt-4 hidden rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.22em] text-slate-400">Selected Candidate</p>
+              <p id="selected-candidate-name" class="text-xl font-black text-white mt-1">None</p>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" onclick="clearSelection()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition">Change Selection</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky bottom-4 z-20 bg-slate-900/95 border border-brand-yellow/40 backdrop-blur-md rounded-2xl p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="w-full sm:w-auto flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-brand-red/10 border border-brand-red/40 text-brand-red flex items-center justify-center font-bold text-xs shrink-0"><span id="progress-text">0/1</span></div>
+          <div>
+            <p class="text-xs font-bold text-white">Selection Progress</p>
+            <p id="progress-subtitle" class="text-[11px] text-slate-400">Please select one presidential candidate.</p>
+          </div>
+        </div>
+        <button type="submit" id="btn-submit-ballot" class="w-full sm:w-auto bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red text-white border border-brand-yellow/50 font-bold text-sm px-8 py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i> Submit Vote
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const ballotState = {
+      gasUrl: 'https://script.google.com/macros/s/AKfycbzfwITF25v3nen8dpPNviVEWTsDb6NUukjfqDigzkqcVz8McU_i0rSvcMUmzTCbIu41EA/exec',
+      selections: { president: null }
+    };
+
+    function selectCandidate(candidateName) {
+      ballotState.selections.president = candidateName;
+      document.querySelectorAll('.candidate-card').forEach(card => card.classList.remove('selected'));
+      const selectedCard = document.getElementById(candidateName === 'Jubal Suagu' ? 'card-jubal' : 'card-joesen');
+      if (selectedCard) selectedCard.classList.add('selected');
+      document.querySelectorAll('input[name="pres_choice"]').forEach(radio => { radio.checked = (radio.value === candidateName); });
+      document.getElementById('badge-pos-president').className = 'text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 font-medium';
+      document.getElementById('badge-pos-president').innerText = '✓ Selected';
+      updateReviewPanel();
+      updateProgress();
+    }
+
+    function clearSelection() {
+      ballotState.selections.president = null;
+      document.querySelectorAll('.candidate-card').forEach(card => card.classList.remove('selected'));
+      document.querySelectorAll('input[name="pres_choice"]').forEach(radio => radio.checked = false);
+      document.getElementById('badge-pos-president').className = 'text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-medium';
+      document.getElementById('badge-pos-president').innerText = 'Only One Selection Allowed';
+      updateReviewPanel();
+      updateProgress();
+    }
+
+    function updateReviewPanel() {
+      const review = document.getElementById('review-selection');
+      const selectedName = document.getElementById('selected-candidate-name');
+      if (ballotState.selections.president) {
+        review.classList.remove('hidden');
+        selectedName.innerText = ballotState.selections.president;
+      } else {
+        review.classList.add('hidden');
+        selectedName.innerText = 'None';
+      }
+    }
+
+    function updateProgress() {
+      const count = Object.values(ballotState.selections).filter(Boolean).length;
+      document.getElementById('progress-text').innerText = `${count}/1`;
+      const subtitle = document.getElementById('progress-subtitle');
+      if (count === 1) {
+        subtitle.innerText = 'One candidate selected. Review and confirm your vote.';
+        subtitle.className = 'text-[11px] text-emerald-600 font-semibold';
+      } else {
+        subtitle.innerText = 'Please select one presidential candidate.';
+        subtitle.className = 'text-[11px] text-slate-400';
+      }
+    }
+
+    async function handleBallotSubmit(e) {
+      e.preventDefault();
+      const voterId = document.getElementById('input-voter-id').value.trim();
+      const voterName = document.getElementById('input-voter-name').value.trim();
+      const voterEmail = document.getElementById('input-voter-email').value.trim();
+
+      if (!voterId || !voterName || !voterEmail) {
+        showAlert('Please fill in your student details before submitting.', 'error');
+        return;
+      }
+      if (!ballotState.selections.president) {
+        showAlert('Please select one presidential candidate before submitting your vote.', 'error');
+        return;
+      }
+
+      const button = document.getElementById('btn-submit-ballot');
+      button.disabled = true;
+      button.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting Vote...';
+      lucide.createIcons();
+
+      const payload = {
+        action: 'submitVote',
+        voterId,
+        voterName,
+        voterEmail,
+        president: ballotState.selections.president,
+        vicePresident: '',
+        secretary: '',
+        treasurer: ''
+      };
+
+      try {
+        const response = await requestVoteJsonp(payload);
+        if (response.status !== 'success') {
+          showAlert(response.message || 'Your ballot was not accepted.', 'error');
+          return;
+        }
+        const receipt = response.receipt || 'ESAS-2027-' + Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem('esas_vote_receipt', receipt);
+        document.getElementById('voter-info-section').classList.add('hidden');
+        document.getElementById('voting-ballot-form').classList.add('hidden');
+        document.getElementById('already-voted-screen').classList.remove('hidden');
+        document.getElementById('receipt-id').innerText = receipt;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        console.error(err);
+        showAlert('An issue occurred while recording your vote. Please try again.', 'error');
+      } finally {
+        button.disabled = false;
+        button.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Submit Vote';
+        lucide.createIcons();
+      }
+    }
+
+    function requestVoteJsonp(payload) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `esasVoteJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const query = new URLSearchParams({ ...payload, callback: callbackName });
+        const script = document.createElement('script');
+        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The voting service timed out.')); }, 15000);
+        const cleanup = () => { clearTimeout(timeoutId); delete window[callbackName]; script.remove(); };
+        window[callbackName] = data => { cleanup(); resolve(data); };
+        script.onerror = () => { cleanup(); reject(new Error('The voting service could not be reached.')); };
+        script.src = `${ballotState.gasUrl}?${query.toString()}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    function showAlert(message, type) {
+      const box = document.getElementById('voter-alert');
+      box.classList.remove('hidden', 'bg-rose-500/10', 'border-rose-500/30', 'text-rose-300', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300');
+      box.classList.add(type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300');
+      box.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i><span>${message}</span></div><button onclick="this.parentElement.classList.add('hidden')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>`;
+      lucide.createIcons();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const existing = localStorage.getItem('esas_vote_receipt');
+      if (existing) {
+        document.getElementById('voter-info-section').classList.add('hidden');
+        document.getElementById('voting-ballot-form').classList.add('hidden');
+        document.getElementById('already-voted-screen').classList.remove('hidden');
+        document.getElementById('receipt-id').innerText = existing;
+      }
+      updateReviewPanel();
+      updateProgress();
+    });
+  </script>
+</body>
+</html>
