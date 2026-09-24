@@ -203,21 +203,36 @@
       const username = document.getElementById('admin-username').value.trim();
       const password = document.getElementById('admin-password').value;
       const btn = document.getElementById('login-btn');
+      const alertBox = document.getElementById('login-alert');
+      
+      // Clear previous alerts
+      alertBox.classList.add('hidden');
+      
       btn.disabled = true;
       btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Authenticating...';
       lucide.createIcons();
+      
+      console.log('[Admin Login] Attempting login for:', username);
+      const startTime = Date.now();
+      
       try {
-        const res = await requestJsonp({ action: 'login', username, password });
+        const res = await requestJsonp({ action: 'login', username, password }, 30000); // 30 second timeout for login
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`[Admin Login] Response received in ${elapsed}s:`, res);
+        
         if (res.status === 'success') {
           sessionStorage.setItem('vote_admin_token', res.token);
           state.authToken = res.token;
+          console.log('[Admin Login] Login successful, loading dashboard...');
           showDashboard();
         } else {
+          console.error('[Admin Login] Login failed:', res.message);
           showLoginAlert(res.message || 'Authentication failed', 'error');
         }
       } catch (err) {
-        console.error(err);
-        showLoginAlert('Failed to connect to the Apps Script server.', 'error');
+        console.error('[Admin Login] Login error:', err);
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        showLoginAlert(`Failed to connect to the server after ${elapsed}s. Please check your internet connection and try again.`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="shield-check" class="w-4 h-4"></i> Authenticate & Open Portal';
@@ -225,15 +240,28 @@
       }
     }
 
-    function requestJsonp(params) {
+    function requestJsonp(params, timeout = 120000) {
       return new Promise((resolve, reject) => {
         const callbackName = `esasJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const query = new URLSearchParams({ ...params, callback: callbackName });
         const script = document.createElement('script');
-        const timeoutId = setTimeout(() => { cleanup(); reject(new Error('The Apps Script request timed out.')); }, 120000);
+        console.log(`[JSONP] Sending request (${timeout/1000}s timeout):`, params.action);
+        const timeoutId = setTimeout(() => { 
+          cleanup(); 
+          console.error(`[JSONP] Request timed out after ${timeout/1000}s`);
+          reject(new Error(`The request timed out after ${timeout/1000} seconds.`)); 
+        }, timeout);
         const cleanup = () => { clearTimeout(timeoutId); delete window[callbackName]; script.remove(); }
-        window[callbackName] = data => { cleanup(); resolve(data); };
-        script.onerror = () => { cleanup(); reject(new Error('The Apps Script endpoint could not be reached.')); };
+        window[callbackName] = data => { 
+          console.log('[JSONP] Response received');
+          cleanup(); 
+          resolve(data); 
+        };
+        script.onerror = () => { 
+          console.error('[JSONP] Script load failed');
+          cleanup(); 
+          reject(new Error('The Apps Script endpoint could not be reached.')); 
+        };
         script.src = `${state.gasUrl}?${query.toString()}`;
         document.head.appendChild(script);
       });
@@ -252,7 +280,7 @@
       
       try {
         console.log('[Admin Dashboard] Fetching latest data...');
-        const json = await requestJsonp({ action: 'getDashboardData', token: state.authToken });
+        const json = await requestJsonp({ action: 'getDashboardData', token: state.authToken }, 30000); // 30s timeout for dashboard data
         console.log('[Admin Dashboard] Response received:', json);
         
         if (json.status === 'success' && json.data) {
